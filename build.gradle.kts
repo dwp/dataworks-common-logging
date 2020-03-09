@@ -33,6 +33,7 @@ dependencies {
     // Testing helper things
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.assertj:assertj-core:3.15.0")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.10.3")
 }
 
 tasks.withType<KotlinCompile> {

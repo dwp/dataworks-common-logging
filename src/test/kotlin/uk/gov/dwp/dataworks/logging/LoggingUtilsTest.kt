@@ -13,24 +13,24 @@ import org.junit.jupiter.api.Test
 
 class LoggingUtilsTest {
     @Test
-    fun testSemiFormattedTuples_WillFormatAsPartialJson_WhenCalledWithoutMatchingKeyValuePairs() {
+    fun `semiFormattedTuples will format as partial JSON without matching key-value pairs`() {
         assertThat("my-message").isEqualToIgnoringWhitespace(semiFormattedTuples("my-message"))
     }
 
     @Test
-    fun testSemiFormattedTuples_WillFormatAsPartialJson_WhenCalledWithMatchingKeyValuePairs() {
-        assertThat("my-message\", \"key1\":\"value1\", \"key2\":\"value2")
+    fun `semiFormattedTuples will format as partial JSON with matching key-value pairs`() {
+        assertThat("\"my-message\", \"key1\":\"value1\", \"key2\":\"value2\"")
             .isEqualToIgnoringWhitespace(semiFormattedTuples("my-message", "key1" to "value1", "key2" to "value2"))
     }
 
     @Test
-    fun testSemiFormattedTuples_WillEscapeJsonInMessageAndTupleValues_WhenCalled() {
-        assertThat("message-\\/:'!@\\u00A3\$%^&*()\\n\\t\\r\", \"key-unchanged\":\"value-\\/:!@\\u00A3\$%^&*()\\n\\t\\r")
+    fun `semiFormattedTuples will escape JSON in message and Tuple values`() {
+        assertThat("\"message-\\/:'!@\\u00A3\$%^&*()\\n\\t\\r\", \"key-unchanged\":\"value-\\/:!@\\u00A3\$%^&*()\\n\\t\\r\"")
             .isEqualToIgnoringWhitespace(semiFormattedTuples("message-/:'!@£\$%^&*()\n\t\r", "key-unchanged" to "value-/:!@£\$%^&*()\n\t\r"))
     }
 
     @Test
-    fun testInlineStackTrace_WillRemoveTabsAndNewlinesAndEscapeJsonChars_WhenCalled() {
+    fun `inlineStackTrace removes tabs, newlines and escape chars`() {
         val stubThrowable = ThrowableProxy(catchMe1())
         ThrowableProxyUtil.build(stubThrowable, catchMe2(), ThrowableProxy(catchMe3()))
 
@@ -41,7 +41,7 @@ class LoggingUtilsTest {
     }
 
     @Test
-    fun testFlattenMultipleLines_WillRemoveTabsAndNewlinesAndNotEscape_WhenCalled() {
+    fun `flattenMultipleLines will remove tabs and newlines but not escape chars`() {
 
         val trace = "java.lang.RuntimeException: boom1 - /:'!@£\$%^&*()\n" +
             "\tat app.utils.logging.LoggerUtilsTest\$MakeStacktrace2.callMe2(LoggerUtilsTest.kt:87)\n"
@@ -52,7 +52,7 @@ class LoggingUtilsTest {
     }
 
     @Test
-    fun testThrowableProxyEventToString_EmbedsAsJsonKey_WhenCalled() {
+    fun `throwableProxyEventToString embeds as JSON key`() {
         val mockEvent = mock<ILoggingEvent>()
         whenever(mockEvent.timeStamp).thenReturn(9876543210)
         whenever(mockEvent.level).thenReturn(Level.WARN)
@@ -66,6 +66,6 @@ class LoggingUtilsTest {
 
         val result = throwableProxyEventToString(mockEvent)
 
-        assertThat(result).containsPattern(""" "exception":".*" """.trim())
+        assertThat(result).contains("boom1 - \\/:'!@\\u00A3${'$'}%^&*()")
     }
 }

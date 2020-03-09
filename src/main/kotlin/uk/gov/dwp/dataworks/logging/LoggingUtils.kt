@@ -1,6 +1,7 @@
 package uk.gov.dwp.dataworks.logging
 
 import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.classic.spi.IThrowableProxy
 import ch.qos.logback.classic.spi.ThrowableProxyUtil
 import ch.qos.logback.core.CoreConstants
 import ch.qos.logback.core.LayoutBase
@@ -9,51 +10,51 @@ import java.net.InetAddress
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
+/**
+ * Formats a string with the following rules:
+ * * Replaces line endings (Windows & Unix) with space delimited pipes (`" | "`)
+ * * Replaces tab chars (`\t`) with a space
+ * * If `text` is null return the literal string "null"
+ */
 fun flattenString(text: String?): String {
     return text
-        ?.replace("\r\n", " | ")
-        ?.replace("\n", " | ")
-        ?.replace("\t", " ")
-        ?: "null"
+            ?.replace("\r\n", " | ")
+            ?.replace("\n", " | ")
+            ?.replace("\t", " ")
+            ?: "null"
 }
 
+/**
+ * Converts an [IThrowableProxy] object to a single line representation of it's Stack Trace. Returns a blank string if
+ * `event` is empty.
+ */
 fun throwableProxyEventToString(event: ILoggingEvent): String {
-    val throwableProxy = event.throwableProxy
-    return if (throwableProxy != null) {
-        val stackTrace = ThrowableProxyUtil.asString(throwableProxy)
-        val oneLineTrace = StringEscapeUtils.escapeJson(flattenString(stackTrace))
-        "\"exception\":\"$oneLineTrace\", "
-    } else {
-        ""
-    }
+    val throwableProxy = event.throwableProxy ?: return ""
+
+    val stackTrace = ThrowableProxyUtil.asString(throwableProxy)
+    return StringEscapeUtils.escapeJson(flattenString(stackTrace))
 }
 
+/**
+ * Converts a message and a set of Tuples to an _almost_ formatted Json string. Tuples are first parsed as follows:
+ * ```
+ * "TupleKey1":"TupleValue1","TupleKey2":"TupleValue2"
+ * ```
+ * Then the input message is escaped as per [StringEscapeUtils.escapeJson] and prepended with quotes. The resulting
+ * output will look like the following:
+ * ```
+ * "input message contents","TupleKey1":"TupleValue1","TupleKey2":"TupleValue2"
+ * ```
+ */
 fun semiFormattedTuples(message: String, vararg tuples: Pair<String, String>): String {
-    if(tuples.isNotEmpty()) {
-        val formattedTuples = tuples.joinToString(separator = """ "," """.trim(), transform = {"""${it.first}":"${StringEscapeUtils.escapeJson(it.second)}"""})
-        return """${StringEscapeUtils.escapeJson(message)}","$formattedTuples"""
+    if (tuples.isEmpty()) {
+        return """ "$message" """.trim()
     }
-    return message
+    val formattedTuples = tuples.joinToString(
+            separator = """ "," """.trim(),
+            transform = { """${it.first}":"${StringEscapeUtils.escapeJson(it.second)}""" })
+    return """ "${StringEscapeUtils.escapeJson(message)}","$formattedTuples" """.trim()
 }
-
-//fun semiFormattedTuples(message: String, vararg tuples: String): String {
-//    val semiFormatted = StringBuilder(StringEscapeUtils.escapeJson(message))
-//    if (tuples.size % 2 != 0) {
-//        throw IllegalArgumentException("Must have equal number of key-value pairs but had ${tuples.size} argument(s)")
-//    }
-//
-//    for (i in tuples.indices step 2) {
-//
-//        val key = tuples[i]
-//        val value = tuples[i + 1]
-//        val escapedValue = StringEscapeUtils.escapeJson(value)
-//        semiFormatted.append("\", \"")
-//        semiFormatted.append(key)
-//        semiFormatted.append("\":\"")
-//        semiFormatted.append(escapedValue)
-//    }
-//    return semiFormatted.toString()
-//}
 
 //fun test() {
 //    "key" to "value"
