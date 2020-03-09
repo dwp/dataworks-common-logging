@@ -3,6 +3,10 @@ package uk.gov.dwp.dataworks.logging
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * Entry class to this library. Essentially wraps an existing logger and injects common fields and provided tuples as
+ * JSON such that intelligent log parsing can be carried out on them (e.g Splunk, CloudWatch insights etc.)
+ */
 class DataworksLogger(private val delegateLogger: Logger) {
 
     companion object {

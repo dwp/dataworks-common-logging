@@ -3,11 +3,10 @@ package uk.gov.dwp.dataworks.logging
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.spi.IThrowableProxy
 import ch.qos.logback.classic.spi.ThrowableProxyUtil
-import ch.qos.logback.core.CoreConstants
-import ch.qos.logback.core.LayoutBase
 import org.apache.commons.text.StringEscapeUtils
-import java.net.InetAddress
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 /**
@@ -38,12 +37,12 @@ fun throwableProxyEventToString(event: ILoggingEvent): String {
 /**
  * Converts a message and a set of Tuples to an _almost_ formatted Json string. Tuples are first parsed as follows:
  * ```
- * "TupleKey1":"TupleValue1","TupleKey2":"TupleValue2"
+ *  "TupleKey1":"TupleValue1","TupleKey2":"TupleValue2"
  * ```
  * Then the input message is escaped as per [StringEscapeUtils.escapeJson] and prepended with quotes. The resulting
  * output will look like the following:
  * ```
- * "input message contents","TupleKey1":"TupleValue1","TupleKey2":"TupleValue2"
+ *  "input message contents","TupleKey1":"TupleValue1","TupleKey2":"TupleValue2"
  * ```
  */
 fun semiFormattedTuples(message: String, vararg tuples: Pair<String, String>): String {
@@ -56,9 +55,10 @@ fun semiFormattedTuples(message: String, vararg tuples: Pair<String, String>): S
     return """ "${StringEscapeUtils.escapeJson(message)}","$formattedTuples" """.trim()
 }
 
-//fun test() {
-//    "key" to "value"
-//    semiFormattedTuples("Written manifest", "attempt_number", "${attempts + 1}", "manifest_size", "$manifestSize", "s3_location", "s3://$manifestBucket/$manifestPrefix/$manifestFileName")
-//    semiFormattedTuples("Written manifest", "attempt_number" to "${attempts + 1}", "manifest_size" to "$manifestSize", "s3_location" to "s3://$manifestBucket/$manifestPrefix/$manifestFileName")
-//    semiFormattedTuples("Written manifest", Pair("attempt_number", "${attempts + 1}"), Pair("manifest_size", "$manifestSize"), Pair("s3_location", "s3://$manifestBucket/$manifestPrefix/$manifestFileName"))
-//}
+/**
+ * Converts an epoch seconds [Long] to a String of format YYYY-MM-dd'T'HH:mm:ss.SSS
+ */
+fun epochToUTCString(epochTime: Long): String {
+    val dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss.SSS")
+    return dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTime), ZoneOffset.UTC))
+}

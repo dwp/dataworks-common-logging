@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 class LoggingUtilsTest {
     @Test
     fun `semiFormattedTuples will format as partial JSON without matching key-value pairs`() {
-        assertThat("my-message").isEqualToIgnoringWhitespace(semiFormattedTuples("my-message"))
+        assertThat("\"my-message\"").isEqualToIgnoringWhitespace(semiFormattedTuples("my-message"))
     }
 
     @Test
@@ -67,5 +67,11 @@ class LoggingUtilsTest {
         val result = throwableProxyEventToString(mockEvent)
 
         assertThat(result).contains("boom1 - \\/:'!@\\u00A3${'$'}%^&*()")
+    }
+
+    @Test
+    fun `epochToUTCString will format to UTC`() {
+        assertThat("1970-01-01T00:00:00.000").isEqualTo(epochToUTCString(0))
+        assertThat("1973-03-01T23:29:03.210").isEqualTo(epochToUTCString(99876543210))
     }
 }

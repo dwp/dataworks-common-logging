@@ -27,17 +27,26 @@ object LogFields {
     }
 }
 
-// TODO handle env vars as well as system props
 /**
  * Object which represents fields that are common across all applications. These are extracted from Environment or
  * Java System variables and used to prepend all log lines sent by this library.
+ *
+ * Variables are resolved from the following places, in preferential order:
+ * * Environment variable - [System.getenv]
+ * * System property - [System.getProperty]
+ * * [LogField.default]
  */
 object CommonLogFields {
     val commonFields: Map<String, String> =
         LogField.values().associate {
-            val value = System.getProperty(it.systemPropName) ?: it.default
+            val value = resolveFieldValue(it)
             Pair(it.systemPropName, value)
         }
+
+    private fun resolveFieldValue(logField: LogField): String {
+        val propName = logField.systemPropName
+        return System.getenv(propName) ?: System.getProperty(propName) ?: logField.default
+    }
 }
 
 enum class LogField(val systemPropName: String, val default: String) {

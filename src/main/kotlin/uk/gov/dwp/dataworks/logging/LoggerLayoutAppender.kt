@@ -2,24 +2,17 @@ package uk.gov.dwp.dataworks.logging
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.LayoutBase
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
+/**
+ * Implementation of [LayoutBase] which allows us to parse events and reformat into JSON structured messages.
+ */
 object LoggerLayoutAppender : LayoutBase<ILoggingEvent>() {
 
-    var start_time_milliseconds = System.currentTimeMillis()
+    private var start_time_milliseconds = System.currentTimeMillis()
 
-    fun getDurationInMilliseconds(epochTime: Long): String {
+    private fun getDurationInMilliseconds(epochTime: Long): String {
         val elapsedMilliseconds = epochTime - start_time_milliseconds
         return elapsedMilliseconds.toString()
-    }
-
-    fun epochToUTCString(epochTime: Long): String {
-        val dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss.SSS")
-        return dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTime), ZoneOffset.UTC))
     }
 
     override fun doLayout(event: ILoggingEvent?): String {

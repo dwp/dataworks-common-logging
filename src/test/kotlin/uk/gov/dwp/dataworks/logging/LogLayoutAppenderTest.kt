@@ -16,12 +16,6 @@ import org.junit.jupiter.api.Test
 
 class LogLayoutAppenderTest {
     @Test
-    fun `formattedTimestamp will format to UTC`() {
-        assertThat("1970-01-01T00:00:00.000").isEqualTo(LoggerLayoutAppender.epochToUTCString(0))
-        assertThat("1973-03-01T23:29:03.210").isEqualTo(LoggerLayoutAppender.epochToUTCString(99876543210))
-    }
-
-    @Test
     fun `doLayout returns empty when called on null`() {
         val result = LoggerLayoutAppender.doLayout(null)
         assertThat(result).isEqualTo("")
@@ -45,9 +39,10 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.level).thenReturn(Level.WARN)
         whenever(mockEvent.threadName).thenReturn("my.thread.is.betty")
         whenever(mockEvent.loggerName).thenReturn("logger.name.is.mavis")
-        whenever(mockEvent.formattedMessage).thenReturn("some message about stuff")
+        whenever(mockEvent.formattedMessage).thenReturn("\"some message about stuff\"")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
         val result = LoggerLayoutAppender.doLayout(mockEvent)
+        println(result)
 
         assertJsonContainsCommonFields(result)
         assertJsonContainsField(result, "timestamp", "1970-04-25T07:29:03.210")
@@ -55,7 +50,6 @@ class LogLayoutAppenderTest {
         assertJsonContainsField(result, "message", "some message about stuff")
         assertJsonContainsField(result, "thread", "my.thread.is.betty")
         assertJsonContainsField(result, "logger", "logger.name.is.mavis")
-        assertJsonContainsField(result, "duration_in_milliseconds", "210")
     }
 
     @Test
@@ -65,6 +59,8 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
         val result = LoggerLayoutAppender.doLayout(mockEvent)
+        println(result)
+
         assertJsonContainsCommonFields(result)
         assertJsonContainsField(result, "message", "some | message | about | stuff with tabs")
     }
@@ -77,6 +73,7 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
         val result = LoggerLayoutAppender.doLayout(mockEvent)
+        println(result)
         assertJsonContainsCommonFields(result)
         assertJsonContainsField(result, "key1", "value1")
         assertJsonContainsField(result, "key2", "value2")
@@ -86,7 +83,7 @@ class LogLayoutAppenderTest {
     @Test
     fun `doLayout should not escape json as that would mess with our custom static log methods which do`() {
         val mockEvent = mock<ILoggingEvent>()
-        whenever(mockEvent.formattedMessage).thenReturn("message-/:'!@")
+        whenever(mockEvent.formattedMessage).thenReturn("\"message-/:'!@\"")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
         val result = LoggerLayoutAppender.doLayout(mockEvent)
