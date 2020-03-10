@@ -9,7 +9,7 @@ import java.net.InetAddress
  */
 object LogFields {
     private val logFields = CommonLogFields.commonFields.toMutableMap()
-    val asJson = logFields.map { """ "${it.key}":"${it.value}" """.trim() }.joinToString(separator = ",")
+    val asJson = logFields.map { """"${it.key}":"${it.value}"""" }.joinToString(separator = ",")
 
     fun get(logField: String): String {
         return logFields.getValue(logField)
@@ -19,34 +19,28 @@ object LogFields {
         return get(logField.systemPropName)
     }
 
-    fun put(logField: String, value: String) {
-        if(logField.isBlank() || value.isBlank()) {
-            throw IllegalArgumentException("Key and value must not be blank! Got: $logField:$value")
+    /**
+     * Add a custom logField to this library. The same logic is used to resolve variable values as in
+     * [LogField.resolveFieldValue]
+     */
+    fun put(logField: String, default: String) {
+        if(logField.isBlank() || default.isBlank()) {
+            throw IllegalArgumentException("Key and default value must not be blank! Got: '$logField':'$default'")
         }
-        logFields[logField] = value
+        logFields[logField] = System.getenv(logField) ?: System.getProperty(logField) ?: default
     }
 }
 
 /**
  * Object which represents fields that are common across all applications. These are extracted from Environment or
  * Java System variables and used to prepend all log lines sent by this library.
- *
- * Variables are resolved from the following places, in preferential order:
- * * Environment variable - [System.getenv]
- * * System property - [System.getProperty]
- * * [LogField.default]
  */
 object CommonLogFields {
     val commonFields: Map<String, String> =
         LogField.values().associate {
-            val value = resolveFieldValue(it)
+            val value = it.resolveFieldValue()
             Pair(it.systemPropName, value)
         }
-
-    private fun resolveFieldValue(logField: LogField): String {
-        val propName = logField.systemPropName
-        return System.getenv(propName) ?: System.getProperty(propName) ?: logField.default
-    }
 }
 
 enum class LogField(val systemPropName: String, val default: String) {
@@ -56,4 +50,15 @@ enum class LogField(val systemPropName: String, val default: String) {
     COMPONENT("component", "NOT_SET"),
     CORRELATION_ID("correlation_id", "NOT_SET"),
     HOSTNAME("hostname", InetAddress.getLocalHost().hostName);
+
+    /**
+     * Resolve the variables' value, from the following places, in preferential order:
+     * * Environment variable - [System.getenv]
+     * * System property - [System.getProperty]
+     * * [LogField.default]
+     */
+    fun resolveFieldValue(): String {
+        val propName = systemPropName
+        return System.getenv(propName) ?: System.getProperty(propName) ?: default
+    }
 }

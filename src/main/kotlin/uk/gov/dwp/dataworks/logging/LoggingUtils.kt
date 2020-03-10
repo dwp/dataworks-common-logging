@@ -27,11 +27,11 @@ fun flattenString(text: String?): String {
  * Converts an [IThrowableProxy] object to a single line representation of it's Stack Trace. Returns a blank string if
  * `event` is empty.
  */
-fun throwableProxyEventToString(event: ILoggingEvent): String {
+fun throwableProxyEventToJsonKeyPair(event: ILoggingEvent): String {
     val throwableProxy = event.throwableProxy ?: return ""
 
     val stackTrace = ThrowableProxyUtil.asString(throwableProxy)
-    return StringEscapeUtils.escapeJson(flattenString(stackTrace))
+    return """"exception":"${StringEscapeUtils.escapeJson(flattenString(stackTrace))}","""
 }
 
 /**
@@ -47,18 +47,18 @@ fun throwableProxyEventToString(event: ILoggingEvent): String {
  */
 fun semiFormattedTuples(message: String, vararg tuples: Pair<String, String>): String {
     if (tuples.isEmpty()) {
-        return """ "$message" """.trim()
+        return """"$message""""
     }
     val formattedTuples = tuples.joinToString(
-            separator = """ "," """.trim(),
+            separator = """","""",
             transform = { """${it.first}":"${StringEscapeUtils.escapeJson(it.second)}""" })
-    return """ "${StringEscapeUtils.escapeJson(message)}","$formattedTuples" """.trim()
+    return """"${StringEscapeUtils.escapeJson(message)}","$formattedTuples""""
 }
 
+private val dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss.SSS")
 /**
  * Converts an epoch seconds [Long] to a String of format YYYY-MM-dd'T'HH:mm:ss.SSS
  */
 fun epochToUTCString(epochTime: Long): String {
-    val dtf = DateTimeFormatter.ofPattern("YYYY-MM-dd'T'HH:mm:ss.SSS")
     return dtf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(epochTime), ZoneOffset.UTC))
 }

@@ -37,7 +37,7 @@ class LogFieldsTest {
     fun `LogFields statically populates JSON string`(logField: LogField) {
         assertThat(LogFields.asJson).contains(logField.systemPropName)
         assertThat(LogFields.asJson).contains(logField.default)
-        assertThat(LogFields.asJson).contains(""" "${logField.systemPropName}":"${logField.default}" """.trim())
+        assertThat(LogFields.asJson).contains(""""${logField.systemPropName}":"${logField.default}"""")
     }
 
     @Test

@@ -14,19 +14,19 @@ import org.junit.jupiter.api.Test
 class LoggingUtilsTest {
     @Test
     fun `semiFormattedTuples will format as partial JSON without matching key-value pairs`() {
-        assertThat("\"my-message\"").isEqualToIgnoringWhitespace(semiFormattedTuples("my-message"))
+        assertThat("\"my-message\"").isEqualTo(semiFormattedTuples("my-message"))
     }
 
     @Test
     fun `semiFormattedTuples will format as partial JSON with matching key-value pairs`() {
-        assertThat("\"my-message\", \"key1\":\"value1\", \"key2\":\"value2\"")
-            .isEqualToIgnoringWhitespace(semiFormattedTuples("my-message", "key1" to "value1", "key2" to "value2"))
+        assertThat("\"my-message\",\"key1\":\"value1\",\"key2\":\"value2\"")
+            .isEqualTo(semiFormattedTuples("my-message", "key1" to "value1", "key2" to "value2"))
     }
 
     @Test
     fun `semiFormattedTuples will escape JSON in message and Tuple values`() {
-        assertThat("\"message-\\/:'!@\\u00A3\$%^&*()\\n\\t\\r\", \"key-unchanged\":\"value-\\/:!@\\u00A3\$%^&*()\\n\\t\\r\"")
-            .isEqualToIgnoringWhitespace(semiFormattedTuples("message-/:'!@£\$%^&*()\n\t\r", "key-unchanged" to "value-/:!@£\$%^&*()\n\t\r"))
+        assertThat("\"message-\\/:'!@\\u00A3\$%^&*()\\n\\t\\r\",\"key-unchanged\":\"value-\\/:!@\\u00A3\$%^&*()\\n\\t\\r\"")
+            .isEqualTo(semiFormattedTuples("message-/:'!@£\$%^&*()\n\t\r", "key-unchanged" to "value-/:!@£\$%^&*()\n\t\r"))
     }
 
     @Test
@@ -54,19 +54,14 @@ class LoggingUtilsTest {
     @Test
     fun `throwableProxyEventToString embeds as JSON key`() {
         val mockEvent = mock<ILoggingEvent>()
-        whenever(mockEvent.timeStamp).thenReturn(9876543210)
-        whenever(mockEvent.level).thenReturn(Level.WARN)
-        whenever(mockEvent.threadName).thenReturn("my.thread.is.betty")
-        whenever(mockEvent.loggerName).thenReturn("logger.name.is.mavis")
-        whenever(mockEvent.formattedMessage).thenReturn("some message about stuff")
 
         val stubThrowable = ThrowableProxy(catchMe1())
         ThrowableProxyUtil.build(stubThrowable, catchMe2(), ThrowableProxy(catchMe3()))
         whenever(mockEvent.throwableProxy).thenReturn(stubThrowable as IThrowableProxy)
 
-        val result = throwableProxyEventToString(mockEvent)
+        val result = throwableProxyEventToJsonKeyPair(mockEvent)
 
-        assertThat(result).contains("boom1 - \\/:'!@\\u00A3${'$'}%^&*()")
+        assertThat(result).contains(""""exception":"java.lang.RuntimeException: boom1 - \/:'!@\u00A3${'$'}%^&*()""")
     }
 
     @Test
