@@ -1,8 +1,8 @@
 package uk.gov.dwp.dataworks.logging
 
-fun catchMe1(): Throwable {
+fun catchMe1(message: String = ""): Throwable {
     try {
-        MakeStacktrace1().callMe1()
+        MakeStacktrace1().callMe1(message)
     }
     catch (ex: Exception) {
         return ex
@@ -31,8 +31,9 @@ fun catchMe3(): Throwable {
 }
 
 class MakeStacktrace1 {
-    fun callMe1() {
-        throw RuntimeException("boom1 - /:'!@£\$%^&*()")
+    fun callMe1(message: String = "") {
+        val exMessage = if(message != "") message else "boom1 - /:'!@£\$%^&*()"
+        throw RuntimeException(exMessage)
     }
 }
 

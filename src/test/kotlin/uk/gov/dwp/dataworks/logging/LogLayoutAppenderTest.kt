@@ -8,10 +8,7 @@ import ch.qos.logback.classic.spi.ThrowableProxyUtil
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class LogLayoutAppenderTest {
@@ -99,17 +96,18 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.loggerName).thenReturn("logger.name.is.mavis")
         whenever(mockEvent.formattedMessage).thenReturn("some message about stuff")
 
-        val stubThrowable = ThrowableProxy(catchMe1())
+        val stubThrowable = ThrowableProxy(catchMe1("i am an exception"))
         ThrowableProxyUtil.build(stubThrowable, catchMe2(), ThrowableProxy(catchMe3()))
         whenever(mockEvent.throwableProxy).thenReturn(stubThrowable as IThrowableProxy)
 
         val result = LoggerLayoutAppender.doLayout(mockEvent)
         assertThat(result).containsPattern("\"exception\":\".*\"")
+        assertThat(result).contains("i am an exception")
     }
 
     private fun assertJsonContainsCommonFields(value: String) {
         LogField.values().forEach {
-            assertThat(value).contains(it.systemPropName)
+            assertThat(value).contains(it.propertyName)
         }
     }
 
