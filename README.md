@@ -17,6 +17,7 @@ repositories {
     }
 }
 ```
+Where `gpr.user` or `USERNAME` resolves to your GH username and `gpr.key` or `TOKEN` resolves to a GH PAT code. 
 
 #### Logger configuration
 To utilise this library in your project, you will need to include the compiled this projects`.jar` file. You are also required to add a logback XML file in the resources for your project, and add the following code as an `appender`. This will inform the logging framework to use `LoggerLayoutAppender` to parse messages into our format.
