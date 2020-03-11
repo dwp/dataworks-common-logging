@@ -37,7 +37,7 @@ jobs:
             [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
             VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
             sed -i s/version=.*/version=$VERSION/ gradle.properties
-            gradle build
+            gradle build test
 
 
       - save_cache:
@@ -120,8 +120,6 @@ workflows:
             branches:
               only: master
       - publish-github-release:
-          requires:
-            - integration-test
           filters:
             branches:
               only: master
