@@ -11,9 +11,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/openjdk:11-jdk
-
-    working_directory: ~/repo
+      - image: circleci/openjdk:11.0.3-jdk-stretch
 
     environment:
       # Customize the JVM maximum heap limit
@@ -37,8 +35,7 @@ jobs:
             [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
             VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
             sed -i s/version=.*/version=$VERSION/ gradle.properties
-            ./gradlew build test
-
+            ./gradlew build
 
       - save_cache:
           paths:
@@ -56,12 +53,22 @@ jobs:
           paths:
             - dataworks-common-logging-*.jar
 
+  test:
+    docker:
+      - image: circleci/openjdk:11.0.3-jdk-stretch
+    steps:
+      - checkout
+      - run:
+          name: Run gradle tests
+          command: |
+            ./gradlew test
 
   snyk-pr:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
       - checkout
+      # Snyk scan examines build.gradle for sev:high and will fail if found
       - snyk/scan:
           organization: dwp-dataworks
           severity-threshold: high
@@ -70,9 +77,10 @@ jobs:
 
   snyk-master:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:11.0.3-jdk-stretch
     steps:
       - checkout
+      # Snyk scan examines build.gradle for sev:all and will fail if found
       - snyk/scan:
           organization: dwp-dataworks
           severity-threshold: high
@@ -87,12 +95,12 @@ jobs:
       - attach_workspace:
           at: ./artifacts
       - run:
-          name: "Publish Release on GitHub"
+          name: Publish Release on GitHub
           command: |
             set -u
-            set -o pipefail
-            ls -l ./artifacts
+            set +o pipefail
             LATEST_VERSION=$(curl --silent "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+            set -o pipefail
             [  -z "$LATEST_VERSION" ] && LATEST_VERSION="0.0.0"
             VERSION=$(echo $LATEST_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
             ghr \
@@ -107,19 +115,18 @@ workflows:
   build-and-deploy:
     jobs:
       - build
+      - test
       - snyk-pr:
-          requires:
-            - build
           filters:
             branches:
               ignore: master
       - snyk-master:
-          requires:
-            - build
           filters:
             branches:
               only: master
       - publish-github-release:
+          requires:
+            - build
           filters:
             branches:
               only: master
