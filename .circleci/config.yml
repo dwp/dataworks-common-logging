@@ -150,9 +150,9 @@ workflows:
             branches:
               only: master
       - publish-github-package:
-          requires:
-            - publish-github-release
 # TO BE UNCOMMENTED BEFORE PR IS MERGED!
+#          requires:
+#            - publish-github-release
 #          filters:
 #            branches:
 #              only: master
