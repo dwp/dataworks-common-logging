@@ -135,7 +135,6 @@ workflows:
     jobs:
       - build
       - test
-      - publish-github-package
       - snyk-pr:
           filters:
             branches:
@@ -150,9 +149,9 @@ workflows:
           filters:
             branches:
               only: master
-# TO BE UNCOMMENTED BEFORE PR IS MERGED!
-#          requires:
-#            - publish-github-release
-#          filters:
-#            branches:
-#              only: master
+      - publish-github-package:
+          requires:
+            - publish-github-release
+          filters:
+            branches:
+              only: master
