@@ -38,6 +38,10 @@ class LoggerLayoutAppender : LayoutBase<ILoggingEvent>() {
         if (event == null) {
             return ""
         }
-        return """{"timestamp":"${epochToUTCString(event.timeStamp)}", "log_level":"${event.level}", "message":"${flattenString(event.formattedMessage).trim('"')}", ${throwableProxyEventToJsonKeyPair(event)}"thread":"${event.threadName}", "logger":"${event.loggerName}", "duration_in_milliseconds":"${getDurationInMilliseconds(event.timeStamp)}", ${LogFields.asJson}}"""
+        val formattedTimestamp = epochToUTCString(event.timeStamp)
+        val formattedMessage = flattenString(event.formattedMessage).trim('"')
+        val formattedException = throwableProxyEventToJsonKeyPair(event)
+        val formattedDuration = getDurationInMilliseconds(event.timeStamp)
+        return """{"timestamp":"$formattedTimestamp", "log_level":"${event.level}", "message":"$formattedMessage", $formattedException"thread":"${event.threadName}", "logger":"${event.loggerName}", "duration_in_milliseconds":"$formattedDuration", ${LogFields.asJson}}"""
     }
 }
