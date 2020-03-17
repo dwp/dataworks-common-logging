@@ -36,7 +36,7 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.level).thenReturn(Level.WARN)
         whenever(mockEvent.threadName).thenReturn("my.thread.is.betty")
         whenever(mockEvent.loggerName).thenReturn("logger.name.is.mavis")
-        whenever(mockEvent.formattedMessage).thenReturn("\"some message about stuff\"")
+        whenever(mockEvent.formattedMessage).thenReturn("some message about stuff")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
         val result = LoggerLayoutAppender().doLayout(mockEvent)
         println(result)
@@ -52,7 +52,7 @@ class LogLayoutAppenderTest {
     @Test
     fun `doLayout will flatten multiline messages`() {
         val mockEvent = mock<ILoggingEvent>()
-        whenever(mockEvent.formattedMessage).thenReturn("\"some\nmessage\nabout\nstuff with\ttabs\"")
+        whenever(mockEvent.formattedMessage).thenReturn("some\nmessage\nabout\nstuff with\ttabs")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
         val result = LoggerLayoutAppender().doLayout(mockEvent)
@@ -80,7 +80,7 @@ class LogLayoutAppenderTest {
     @Test
     fun `doLayout should not escape json as that would mess with our custom static log methods which do`() {
         val mockEvent = mock<ILoggingEvent>()
-        whenever(mockEvent.formattedMessage).thenReturn("\"message-/:'!@\"")
+        whenever(mockEvent.formattedMessage).thenReturn("message-/:'!@")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
         val result = LoggerLayoutAppender().doLayout(mockEvent)
