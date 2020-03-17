@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Test
 class LogLayoutAppenderTest {
     @Test
     fun `doLayout returns empty when called on null`() {
-        val result = LoggerLayoutAppender.doLayout(null)
+        val result = LoggerLayoutAppender().doLayout(null)
         assertThat(result).isEqualTo("")
     }
 
     @Test
     fun `doLayout returns skinny JSON on empty event`() {
-        val result = LoggerLayoutAppender.doLayout(mock())
+        val result = LoggerLayoutAppender().doLayout(mock())
         assertJsonContainsCommonFields(result)
         assertJsonContainsField(result, "timestamp", "1970-01-01T00:00:00.000")
         assertJsonContainsField(result, "log_level", "null")
@@ -38,7 +38,7 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.loggerName).thenReturn("logger.name.is.mavis")
         whenever(mockEvent.formattedMessage).thenReturn("\"some message about stuff\"")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
-        val result = LoggerLayoutAppender.doLayout(mockEvent)
+        val result = LoggerLayoutAppender().doLayout(mockEvent)
         println(result)
 
         assertJsonContainsCommonFields(result)
@@ -55,7 +55,7 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.formattedMessage).thenReturn("\"some\nmessage\nabout\nstuff with\ttabs\"")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
-        val result = LoggerLayoutAppender.doLayout(mockEvent)
+        val result = LoggerLayoutAppender().doLayout(mockEvent)
         println(result)
 
         assertJsonContainsCommonFields(result)
@@ -69,7 +69,7 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.formattedMessage).thenReturn(embeddedTokens)
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
-        val result = LoggerLayoutAppender.doLayout(mockEvent)
+        val result = LoggerLayoutAppender().doLayout(mockEvent)
         println(result)
         assertJsonContainsCommonFields(result)
         assertJsonContainsField(result, "key1", "value1")
@@ -83,7 +83,7 @@ class LogLayoutAppenderTest {
         whenever(mockEvent.formattedMessage).thenReturn("\"message-/:'!@\"")
         whenever(mockEvent.hasCallerData()).thenReturn(false)
 
-        val result = LoggerLayoutAppender.doLayout(mockEvent)
+        val result = LoggerLayoutAppender().doLayout(mockEvent)
         assertJsonContainsField(result, "message", "message-/:'!@")
     }
 
@@ -100,7 +100,7 @@ class LogLayoutAppenderTest {
         ThrowableProxyUtil.build(stubThrowable, catchMe2(), ThrowableProxy(catchMe3()))
         whenever(mockEvent.throwableProxy).thenReturn(stubThrowable as IThrowableProxy)
 
-        val result = LoggerLayoutAppender.doLayout(mockEvent)
+        val result = LoggerLayoutAppender().doLayout(mockEvent)
         assertThat(result).containsPattern("\"exception\":\".*\"")
         assertThat(result).contains("i am an exception")
     }
