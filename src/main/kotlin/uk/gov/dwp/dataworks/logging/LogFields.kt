@@ -55,7 +55,7 @@ enum class LogField(val propertyName: String, val default: String) {
     APP_VERSION("app_version", "NOT_SET"),
     COMPONENT("component", "NOT_SET"),
     CORRELATION_ID("correlation_id", "NOT_SET"),
-    HOSTNAME("hostname", InetAddress.getLocalHost().hostName);
+    HOSTNAME("host", InetAddress.getLocalHost().hostName);
 }
 
 /**

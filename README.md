@@ -41,7 +41,7 @@ Out of the box, it provides functionality to convert log messages to JSON and ap
 | app_version    | v1             |
 | component      | read-from-x    |
 | correlation_id | 1              |
-| hostname       | 127.0.0.1      |
+| host           | 127.0.0.1      |
 
 ## Custom fields in log messages
 For the case where you would like to add custom values to the logging lines which are output, `LogFields` provides functionality to do this.
@@ -72,7 +72,7 @@ Log lines output with custom fields look like the following (without pretty prin
   "app_version": "v1",
   "component": "tests",
   "correlation_id": "1",
-  "hostname": "127.0.0.1"
+  "host": "127.0.0.1"
 }
 ```
 
@@ -113,7 +113,7 @@ Some example outputs are displayed below. Note that in actuality these will be o
   "app_version": "v1",
   "component": "tests",
   "correlation_id": "1",
-  "hostname": "127.0.0.1"
+  "host": "127.0.0.1"
 }
 ```
 
@@ -132,6 +132,6 @@ Some example outputs are displayed below. Note that in actuality these will be o
   "app_version": "v1",
   "component": "tests",
   "correlation_id": "1",
-  "hostname": "127.0.0.1"
+  "host": "127.0.0.1"
 }
 ```

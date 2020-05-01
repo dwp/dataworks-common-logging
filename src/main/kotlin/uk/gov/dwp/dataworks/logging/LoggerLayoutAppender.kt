@@ -15,7 +15,7 @@ import ch.qos.logback.core.LayoutBase
  *  "duration_in_milliseconds": "",
  *  "environment": "",
  *  "exception": "",
- *  "hostname": ""
+ *  "host": ""
  *  "log_level": "",
  *  "logger": "",
  *  "message": "",
