@@ -2,7 +2,6 @@ package uk.gov.dwp.dataworks.logging
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 /**
